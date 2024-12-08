@@ -1,0 +1,73 @@
+{
+  "components": [
+    {
+      "label": "Record Id",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_03lot4r",
+        "columns": null
+      },
+      "id": "Field_16vmqpc",
+      "key": "recordId"
+    },
+    {
+      "label": "Task Id",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0jikaaj",
+        "columns": null
+      },
+      "id": "Field_0k52i4w",
+      "key": "taskId"
+    },
+    {
+      "label": "Parts Price",
+      "type": "number",
+      "layout": {
+        "row": "Row_0vjuiws",
+        "columns": null
+      },
+      "id": "Field_013clhl",
+      "key": "partsPrice"
+    },
+    {
+      "label": "Labour Price",
+      "type": "number",
+      "layout": {
+        "row": "Row_12j8d1p",
+        "columns": null
+      },
+      "id": "Field_1u5mkib",
+      "key": "labourPrice"
+    },
+    {
+      "label": "Amount",
+      "type": "number",
+      "layout": {
+        "row": "Row_0m7o8bb",
+        "columns": null
+      },
+      "id": "Field_07rwyk6",
+      "key": "amount"
+    },
+    {
+      "label": "Review Summary",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0tjwcsq",
+        "columns": null
+      },
+      "id": "Field_1pgcf1c",
+      "key": "reviewSummary"
+    }
+  ],
+  "type": "default",
+  "id": "Form_Purchase_Order",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.29.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.22.0",
+  "schemaVersion": 17
+}

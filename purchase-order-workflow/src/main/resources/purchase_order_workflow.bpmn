@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0zbsg4s" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="PurchaseOrder" name="PurchaseOrderProcess" isExecutable="true" camunda:historyTimeToLive="P180D">
+    <bpmn:extensionElements />
+    <bpmn:startEvent id="StartEvent_1" name="Create order">
+      <bpmn:outgoing>Flow_05scgmb</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_05scgmb" sourceRef="StartEvent_1" targetRef="createOrder" />
+    <bpmn:userTask id="createOrder" name="Create Order Task">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="recordId" label="Record Id" type="string" />
+          <camunda:formField id="taskId" label="Task Id" type="string" />
+          <camunda:formField id="partsPrice" label="Parts Price" type="long" />
+          <camunda:formField id="labourPrice" label="Labour Price" type="long" />
+          <camunda:formField id="amount" label="Amount" type="long" />
+          <camunda:formField id="reviewComment" label="Review Comment" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05scgmb</bpmn:incoming>
+      <bpmn:incoming>Flow_0n5kg1u</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wvf9d7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1wvf9d7" sourceRef="createOrder" targetRef="insertOrder" />
+    <bpmn:serviceTask id="insertOrder" name="Insert Order">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">http://localhost:8080/txn</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+  "recordId": "${recordId}",
+  "taskId": "${taskId}",
+  "partsPrice": ${partsPrice},
+  "labourPrice": ${labourPrice},
+  "amount": ${amount},
+  "reviewSummary": [ {
+      "reviewComment": "${reviewComment}"
+    }]
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-Username">${currentUser()}</camunda:entry>
+                <camunda:entry key="X-Role">${currentUserGroups() != null &amp;&amp; currentUserGroups().contains('PUBLISHER') ? 'PUBLISHER' : null}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="recordId">${S(response).prop("recordId").stringValue()}</camunda:outputParameter>
+            <camunda:outputParameter name="statusCode">#{statusCode}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wvf9d7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0z7tm5o</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="reviewOrderStatus" name="Review Order Status">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="status" label="status" type="enum" defaultValue="REVIEWED">
+            <camunda:properties />
+            <camunda:validation />
+            <camunda:value id="REVIEWED" name="REVIEWED" />
+            <camunda:value id="REWORK" name="REWORK" />
+            <camunda:value id="APPROVED" name="APPROVED" />
+            <camunda:value id="REJECTED" name="REJECTED" />
+            <camunda:value />
+            <camunda:value />
+          </camunda:formField>
+          <camunda:formField id="recordId" label="Record Id" type="string" defaultValue="${recordId}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="taskId" label="Task ID" type="string" defaultValue="${taskId}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="partsPrice" label="Parts Price" type="long" defaultValue="${partsPrice}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="labourPrice" label="Labour Price" type="long" defaultValue="${labourPrice}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="amount" label="Amount" type="long" defaultValue="${amount}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="reviewComment" label="Review Comment" type="string" defaultValue="${reviewComment}" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1tr48kn</bpmn:incoming>
+      <bpmn:incoming>Flow_0x4tiie</bpmn:incoming>
+      <bpmn:incoming>Flow_126gmp6</bpmn:incoming>
+      <bpmn:outgoing>Flow_0n07g9x</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="reviewPurchaseOrder" name="Review Purchase Order">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">http://localhost:8080/txn</camunda:inputParameter>
+            <camunda:inputParameter name="method">PATCH</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+  "recordId": "${recordId}",
+  "status": "${status}",
+ "reviewSummary": [ {
+      "reviewComment": "${reviewComment}"
+    }]
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-Username">${currentUser()}</camunda:entry>
+                <camunda:entry key="X-Role">${currentUserGroups() != null &amp;&amp; currentUserGroups().contains('REVIEWER') ? 'REVIEWER' : null}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="recordId">${S(response).prop("recordId").stringValue()}</camunda:outputParameter>
+            <camunda:outputParameter name="statusCode">#{statusCode}</camunda:outputParameter>
+            <camunda:outputParameter name="status">${S(response).prop("status").stringValue()}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0n07g9x</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vf668i</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="approvePurchaseOrder" name="Approve Purchase Order">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="status" label="status" type="enum" defaultValue="APPROVED">
+            <camunda:properties />
+            <camunda:validation />
+            <camunda:value id="APPROVED" name="APPROVED" />
+            <camunda:value id="REJECTED" name="REJECTED" />
+            <camunda:value id="REVIEWED" name="REVIEWED" />
+            <camunda:value id="REWORK" name="REWORK" />
+          </camunda:formField>
+          <camunda:formField id="recordId" label="Record Id" type="string" defaultValue="${recordId}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="taskId" label="Task Id" type="string" defaultValue="${taskId}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="partsPrice" label="Parts Price" type="long" defaultValue="${partsPrice}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="labourPrice" label="Labour Price" type="string" defaultValue="${labourPrice}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="amount" label="Amount" type="long" defaultValue="${amount}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="reviewComment" label="Review Comment" type="string" defaultValue="${reviewComment}" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bf694s</bpmn:incoming>
+      <bpmn:incoming>Flow_0oxx6vh</bpmn:incoming>
+      <bpmn:outgoing>Flow_1x4eu2t</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="approvePurchase" name="Approve Purchase Order">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">http://localhost:8080/txn</camunda:inputParameter>
+            <camunda:inputParameter name="method">PATCH</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+  "recordId": "${recordId}",
+  "status": "${status}",
+"reviewSummary": [ {
+      "reviewComment": "${reviewComment}"
+    }]
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-Username">${currentUser()}</camunda:entry>
+                <camunda:entry key="X-Role">${currentUserGroups() != null &amp;&amp; currentUserGroups().contains('APPROVER') ? 'APPROVER' : null}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="statusCode">#{statusCode}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1x4eu2t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1617w2t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1x4eu2t" sourceRef="approvePurchaseOrder" targetRef="approvePurchase" />
+    <bpmn:endEvent id="Event_0mkmzl3">
+      <bpmn:incoming>Flow_0f4imjx</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="checkStatusCodeApproval" name="Check status code">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1617w2t</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bf694s</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0f4imjx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_199nadm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1617w2t" sourceRef="approvePurchase" targetRef="checkStatusCodeApproval" />
+    <bpmn:sequenceFlow id="Flow_0bf694s" name="Error in Approval" sourceRef="checkStatusCodeApproval" targetRef="approvePurchaseOrder">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode != 200}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0f4imjx" name="Successfully Approved" sourceRef="checkStatusCodeApproval" targetRef="Event_0mkmzl3">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode == 200 &amp;&amp; status == 'APPROVED'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_1vvbfyp" name="Check status code">
+      <bpmn:incoming>Flow_0z7tm5o</bpmn:incoming>
+      <bpmn:outgoing>Flow_1tr48kn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0n5kg1u</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0z7tm5o" sourceRef="insertOrder" targetRef="Gateway_1vvbfyp" />
+    <bpmn:sequenceFlow id="Flow_1tr48kn" name="Successful Order Creation" sourceRef="Gateway_1vvbfyp" targetRef="reviewOrderStatus">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode == 201}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0n5kg1u" name="Error Creating Order" sourceRef="Gateway_1vvbfyp" targetRef="createOrder">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode != 201}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_06azozs">
+      <bpmn:incoming>Flow_1vf668i</bpmn:incoming>
+      <bpmn:outgoing>Flow_0x4tiie</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0oxx6vh</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0h50u5r</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1vf668i" sourceRef="reviewPurchaseOrder" targetRef="Gateway_06azozs" />
+    <bpmn:sequenceFlow id="Flow_0x4tiie" name="Error in Review" sourceRef="Gateway_06azozs" targetRef="reviewOrderStatus">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode != 200}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0oxx6vh" name="Successfully Reviewed" sourceRef="Gateway_06azozs" targetRef="approvePurchaseOrder">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode == 200 &amp;&amp; status == 'REVIEWED'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0n07g9x" sourceRef="reviewOrderStatus" targetRef="reviewPurchaseOrder" />
+    <bpmn:userTask id="Activity_1jxmu98" name="Update Order Task">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="recordId" label="Record Id" type="string" defaultValue="${recordId}">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="taskId" label="Task Id" type="string" defaultValue="${taskId}" />
+          <camunda:formField id="partsPrice" label="Parts Price" type="long" defaultValue="${partsPrice}" />
+          <camunda:formField id="labourPrice" label="Labour Price" type="long" defaultValue="${partsPrice}" />
+          <camunda:formField id="amount" label="Amount" type="long" defaultValue="${amount}" />
+          <camunda:formField id="reviewComment" label="Review Comment" type="string" defaultValue="${reviewComment}" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0gnjzou</bpmn:incoming>
+      <bpmn:incoming>Flow_0h50u5r</bpmn:incoming>
+      <bpmn:incoming>Flow_199nadm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p0ujnj</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_0ng4ior" name="Update Order">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">http://localhost:8080/txn</camunda:inputParameter>
+            <camunda:inputParameter name="method">PATCH</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+  "recordId": "${recordId}",
+  "taskId": "${taskId}",
+  "partsPrice": ${partsPrice},
+  "labourPrice": ${labourPrice},
+  "amount": ${amount},
+ "reviewSummary": [ {
+      "reviewComment": "${reviewComment}"
+    }]
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-Username">${currentUser()}</camunda:entry>
+                <camunda:entry key="X-Role">${currentUserGroups() != null &amp;&amp; currentUserGroups().contains('PUBLISHER') ? 'PUBLISHER' : null}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="recordId">${S(response).prop("recordId").stringValue()}</camunda:outputParameter>
+            <camunda:outputParameter name="statusCode">#{statusCode}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0p0ujnj</bpmn:incoming>
+      <bpmn:outgoing>Flow_089157y</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0p0ujnj" sourceRef="Activity_1jxmu98" targetRef="Activity_0ng4ior" />
+    <bpmn:exclusiveGateway id="Gateway_104wjeo" name="Check status code">
+      <bpmn:incoming>Flow_089157y</bpmn:incoming>
+      <bpmn:outgoing>Flow_126gmp6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0gnjzou</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_089157y" sourceRef="Activity_0ng4ior" targetRef="Gateway_104wjeo" />
+    <bpmn:sequenceFlow id="Flow_126gmp6" sourceRef="Gateway_104wjeo" targetRef="reviewOrderStatus">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode == 200}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0gnjzou" sourceRef="Gateway_104wjeo" targetRef="Activity_1jxmu98">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode != 200}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0h50u5r" sourceRef="Gateway_06azozs" targetRef="Activity_1jxmu98">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode == 200 &amp;&amp; status == 'REWORK'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_199nadm" name="Rejected By Approver" sourceRef="checkStatusCodeApproval" targetRef="Activity_1jxmu98">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${statusCode == 200 &amp;&amp; status == 'REJECTED'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PurchaseOrder">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="812" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="275" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rq745e_di" bpmnElement="createOrder">
+        <dc:Bounds x="930" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0luczh4_di" bpmnElement="insertOrder">
+        <dc:Bounds x="1130" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10zaxun_di" bpmnElement="reviewOrderStatus">
+        <dc:Bounds x="1130" y="450" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0bwpsay" bpmnElement="approvePurchaseOrder">
+        <dc:Bounds x="1130" y="800" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0kt56ki" bpmnElement="approvePurchase">
+        <dc:Bounds x="1130" y="990" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0zuwplj" bpmnElement="Gateway_1vvbfyp" isMarkerVisible="true">
+        <dc:Bounds x="1405" y="225" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1465" y="236.5" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1kpmx5w" bpmnElement="Gateway_06azozs" isMarkerVisible="true">
+        <dc:Bounds x="895" y="605" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="98" y="646" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0dc6z4m" bpmnElement="reviewPurchaseOrder">
+        <dc:Bounds x="1130" y="590" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0enc7hh_di" bpmnElement="checkStatusCodeApproval" isMarkerVisible="true">
+        <dc:Bounds x="895" y="1005" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="828" y="1046" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0mkmzl3_di" bpmnElement="Event_0mkmzl3">
+        <dc:Bounds x="902" y="1412" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0fc99c0" bpmnElement="Activity_1jxmu98">
+        <dc:Bounds x="160" y="590" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0oepbox" bpmnElement="Activity_0ng4ior">
+        <dc:Bounds x="160" y="340" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_15w995m" bpmnElement="Gateway_104wjeo" isMarkerVisible="true">
+        <dc:Bounds x="415" y="355" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="408" y="317.5" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_05scgmb_di" bpmnElement="Flow_05scgmb">
+        <di:waypoint x="848" y="250" />
+        <di:waypoint x="930" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n5kg1u_di" bpmnElement="Flow_0n5kg1u">
+        <di:waypoint x="1430" y="225" />
+        <di:waypoint x="1430" y="110" />
+        <di:waypoint x="980" y="110" />
+        <di:waypoint x="980" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1173" y="76" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wvf9d7_di" bpmnElement="Flow_1wvf9d7">
+        <di:waypoint x="1030" y="250" />
+        <di:waypoint x="1130" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0z7tm5o_di" bpmnElement="Flow_0z7tm5o">
+        <di:waypoint x="1230" y="250" />
+        <di:waypoint x="1405" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tr48kn_di" bpmnElement="Flow_1tr48kn">
+        <di:waypoint x="1430" y="275" />
+        <di:waypoint x="1430" y="490" />
+        <di:waypoint x="1230" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1437" y="380" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0x4tiie_di" bpmnElement="Flow_0x4tiie">
+        <di:waypoint x="920" y="605" />
+        <di:waypoint x="920" y="490" />
+        <di:waypoint x="1130" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="962" y="463" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_126gmp6_di" bpmnElement="Flow_126gmp6">
+        <di:waypoint x="465" y="380" />
+        <di:waypoint x="1180" y="380" />
+        <di:waypoint x="1180" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n07g9x_di" bpmnElement="Flow_0n07g9x">
+        <di:waypoint x="1180" y="530" />
+        <di:waypoint x="1180" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bf694s_di" bpmnElement="Flow_0bf694s">
+        <di:waypoint x="920" y="1005" />
+        <di:waypoint x="920" y="840" />
+        <di:waypoint x="1130" y="840" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="981" y="856" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1x4eu2t_di" bpmnElement="Flow_1x4eu2t">
+        <di:waypoint x="1180" y="880" />
+        <di:waypoint x="1180" y="990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1617w2t_di" bpmnElement="Flow_1617w2t">
+        <di:waypoint x="1130" y="1030" />
+        <di:waypoint x="945" y="1030" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vf668i_di" bpmnElement="Flow_1vf668i">
+        <di:waypoint x="1130" y="630" />
+        <di:waypoint x="945" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oxx6vh_di" bpmnElement="Flow_0oxx6vh">
+        <di:waypoint x="920" y="655" />
+        <di:waypoint x="920" y="740" />
+        <di:waypoint x="1180" y="740" />
+        <di:waypoint x="1180" y="800" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1023" y="706" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f4imjx_di" bpmnElement="Flow_0f4imjx">
+        <di:waypoint x="920" y="1055" />
+        <di:waypoint x="920" y="1412" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="959" y="1206" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gnjzou_di" bpmnElement="Flow_0gnjzou">
+        <di:waypoint x="440" y="405" />
+        <di:waypoint x="440" y="600" />
+        <di:waypoint x="260" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p0ujnj_di" bpmnElement="Flow_0p0ujnj">
+        <di:waypoint x="210" y="590" />
+        <di:waypoint x="210" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_089157y_di" bpmnElement="Flow_089157y">
+        <di:waypoint x="260" y="380" />
+        <di:waypoint x="415" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h50u5r_di" bpmnElement="Flow_0h50u5r">
+        <di:waypoint x="895" y="630" />
+        <di:waypoint x="260" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_199nadm_di" bpmnElement="Flow_199nadm">
+        <di:waypoint x="895" y="1030" />
+        <di:waypoint x="210" y="1030" />
+        <di:waypoint x="210" y="670" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="986" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
