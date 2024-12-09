@@ -122,6 +122,8 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.purchase_order
     OWNER to postgres;
 
+CREATE SEQUENCE purchase_order_review_summary_id_seq;
+
 -- Table for storing Purchase Order Review Summaries
 CREATE TABLE IF NOT EXISTS public.purchase_order_review_summary
 (
