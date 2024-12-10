@@ -1,0 +1,154 @@
+{
+	"info": {
+		"_postman_id": "648a67e0-5b9c-4e46-be6b-c748ffeb6258",
+		"name": "PurchaseOrder",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1454647",
+		"_collection_link": "https://orange-crater-847731.postman.co/workspace/My-Workspace~9e683dcb-a7f1-4a78-8eed-4dc7d8655161/collection/1454647-648a67e0-5b9c-4e46-be6b-c748ffeb6258?action=share&source=collection_link&creator=1454647"
+	},
+	"item": [
+		{
+			"name": "list",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Username",
+						"value": "userx",
+						"type": "text"
+					},
+					{
+						"key": "X-Role",
+						"value": "APPROVER",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/list",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Username",
+						"value": "User X",
+						"type": "text"
+					},
+					{
+						"key": "X-Role",
+						"value": "PUBLISHER",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recordId\": \"9999\",\n  \"taskId\": \"replace pump2\",\n  \"partsPrice\": 150,\n  \"labourPrice\": 50,\n  \"amount\": 200\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/txn",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"txn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Review",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "X-Username",
+						"value": "User R",
+						"type": "text"
+					},
+					{
+						"key": "X-Role",
+						"value": "REVIEWER",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recordId\": \"9999\",\n  \"status\": \"REVIEWED\",\n  \"reviewSummary\": [ {\n      \"reviewComment\": \"The purchase order looks good\"\n    }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/txn",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"txn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Approve",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "X-Username",
+						"value": "User A",
+						"type": "text"
+					},
+					{
+						"key": "X-Role",
+						"value": "APPROVER",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recordId\": \"03457:123459\",\n  \"status\": \"APPROVED\",\n  \"reviewSummary\": [ {\n      \"reviewComment\": \"The purchase order looks good\"\n    }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/txn",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"txn"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
