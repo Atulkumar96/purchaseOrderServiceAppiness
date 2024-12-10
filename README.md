@@ -29,6 +29,7 @@ This is a Spring Boot project integrated with the **Camunda Workflow Engine** fo
       ```
 
     - This will start the Spring Boot application along with the **Camunda engine instance**.
+    - Postman Collection: PurchaseOrder.postman_collection.json file
 
 4. **Access the Camunda Dashboard**:
     - The application will be running on `http://localhost:8080` by default.
