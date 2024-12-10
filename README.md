@@ -99,6 +99,12 @@ These APIs interact with the **PurchaseOrderService** to manage purchase orders 
 
 - You can use any database for storing the purchase orders and review summaries.
 - Modify the database driver and connection details in the `application.yaml` file as per your database configuration.
+- Dependency for PostgreSQL JDBC Driver
+        <dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.6.0</version>
+		</dependency>
 
 ### **PostgreSQL Sample Schema**
 
