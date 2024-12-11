@@ -106,6 +106,7 @@ public class PurchaseOrderController {
         existingOrder.setPartsPrice(request.getPartsPrice());
         existingOrder.setLabourPrice(request.getLabourPrice());
         existingOrder.setAmount(request.getAmount());
+        existingOrder.setStatus(request.getStatus());
 
         PurchaseOrder updatedOrder = purchaseOrderService.updatePurchaseOrder(existingOrder);
         return ResponseEntity.ok(updatedOrder);
