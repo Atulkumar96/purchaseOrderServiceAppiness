@@ -21,7 +21,7 @@ public class PurchaseOrderService {
             case "PUBLISHER":
                 return purchaseOrderRepository.findByStatusIn(Arrays.asList(PurchaseOrder.OrderStatus.CREATED, PurchaseOrder.OrderStatus.REWORK,PurchaseOrder.OrderStatus.REJECTED));
             case "REVIEWER":
-                return purchaseOrderRepository.findByStatusIn(Arrays.asList(PurchaseOrder.OrderStatus.REVIEWED,PurchaseOrder.OrderStatus.REWORKED));
+                return purchaseOrderRepository.findByStatusIn(Arrays.asList(PurchaseOrder.OrderStatus.CREATED, PurchaseOrder.OrderStatus.REVIEWED,PurchaseOrder.OrderStatus.REWORKED));
             case "APPROVER":
                 return purchaseOrderRepository.findByStatusIn(Arrays.asList(PurchaseOrder.OrderStatus.APPROVED,PurchaseOrder.OrderStatus.REVIEWED));
             default:
